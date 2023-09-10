@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:msh_checkbox/msh_checkbox.dart';
+import 'package:flutter/rendering.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:note_application/Theme/Color.dart';
+import 'package:note_application/models/Task.dart';
+import 'package:note_application/screens/add_task_screen.dart';
+import 'package:note_application/widgets/task_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,127 +14,50 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool isChecked = false;
-
+  var taskBox = Hive.box<Task>('taskBox');
+  bool isFabVisible = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: Center(
-        child: Padding(
+      body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24),
-          child: Container(
-            height: 132,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            MSHCheckbox(
-                              size: 24,
-                              value: isChecked,
-                              colorConfig:
-                                  MSHColorConfig.fromCheckedUncheckedDisabled(
-                                checkedColor: greenColor,
-                              ),
-                              style: MSHCheckboxStyle.fillScaleCheck,
-                              onChanged: (selected) {
-                                setState(() {
-                                  isChecked = selected;
-                                });
-                              },
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'باید برم بیدل با سعید',
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                                Text('راجب آنلاین شاپ صحبت کنیم'),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              width: 83,
-                              height: 28,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(17),
-                                  color: greenColor),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Text(
-                                      '10:00',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: Image.asset(
-                                          'assets/images/icon_time.png'),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 16),
-                            Container(
-                              width: 83,
-                              height: 28,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(17),
-                                color: lightGreenColor,
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Text(
-                                      'ویرایش',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: greenColor,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    Image.asset('assets/images/icon_edit.png'),
-                                  ],
-                                ),
-                              ),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 20),
-                  Image.asset('assets/images/workout.png'),
-                ],
-              ),
-            ),
+          child: ValueListenableBuilder(
+            valueListenable: taskBox.listenable(),
+            builder: (context, value, child) {
+              return ListView.builder(
+                itemBuilder: (context, index) {
+                  var task = taskBox.values.toList()[index];
+                  return getTaskWidget(task: task);
+                },
+                itemCount: taskBox.values.length,
+              );
+            },
+          )),
+      floatingActionButton: NotificationListener<UserScrollNotification>(
+        onNotification: (notif) {
+          setState(() {
+            if (notif.direction == ScrollDirection.forward) {
+              isFabVisible = true;
+            }
+            if (notif.direction == ScrollDirection.reverse) {
+              isFabVisible = false;
+            }
+          });
+
+          return true;
+        },
+        child: Visibility(
+          visible: isFabVisible,
+          child: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddTaskScreen()),
+              );
+            },
+            backgroundColor: greenColor,
+            child: Image.asset('assets/images/icon_add.png'),
           ),
         ),
       ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:note_application/Theme/Color.dart';
+import 'package:note_application/models/Task.dart';
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({super.key});
@@ -11,6 +13,9 @@ class AddTaskScreen extends StatefulWidget {
 class _AddTaskScreenState extends State<AddTaskScreen> {
   FocusNode titleFocusNode = FocusNode();
   FocusNode descFocusNode = FocusNode();
+
+  var controllerTitle = TextEditingController();
+  var controllerSubTitle = TextEditingController();
 
   @override
   void initState() {
@@ -33,6 +38,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     super.dispose();
   }
 
+  var box = Hive.box<Task>('taskBox');
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -47,6 +54,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 Directionality(
                   textDirection: TextDirection.rtl,
                   child: TextField(
+                    controller: controllerTitle,
                     focusNode: titleFocusNode,
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
@@ -74,6 +82,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   textDirection: TextDirection.rtl,
                   child: TextField(
                     focusNode: descFocusNode,
+                    controller: controllerSubTitle,
                     maxLines: 2,
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
@@ -98,7 +107,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
                 Spacer(),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    String taskTitle = controllerTitle.text;
+                    String taskSubTitle = controllerSubTitle.text;
+                    if (taskTitle.isNotEmpty && taskSubTitle.isNotEmpty) {
+                      addTask(taskTitle, taskSubTitle);
+                      Navigator.pop(context);
+                    } else {
+                      return;
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: greenColor,
                   ),
@@ -119,5 +137,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         ),
       ),
     );
+  }
+
+  addTask(String taskTitle, String taskSubTitle) {
+    var task = Task(title: taskTitle, subTitle: taskSubTitle);
+    box.add(task);
   }
 }
