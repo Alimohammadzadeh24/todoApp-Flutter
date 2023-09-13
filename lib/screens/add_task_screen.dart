@@ -4,6 +4,7 @@ import 'package:note_application/Theme/Color.dart';
 import 'package:note_application/models/Task.dart';
 import 'package:note_application/utilities/utility.dart';
 import 'package:note_application/widgets/Task/task_type.dart';
+import 'package:note_application/widgets/Task/task_type_widget.dart';
 import 'package:time_pickerr/time_pickerr.dart';
 
 class AddTaskScreen extends StatefulWidget {
@@ -193,50 +194,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       title: taskTitle,
       subTitle: taskSubTitle,
       time: _time!,
+      taskType: getListTaskType()[_selectedItemIndex],
     );
     box.add(task);
   }
 }
 
-class getTaskTypeListItem extends StatelessWidget {
-  getTaskTypeListItem({
-    super.key,
-    required this.taskType,
-    required this.index,
-    required this.selectedItemIndex,
-  });
-
-  TaskType taskType;
-
-  int index;
-  int selectedItemIndex;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10),
-      width: 110,
-      decoration: BoxDecoration(
-        border: Border.all(
-          width: (selectedItemIndex == index) ? 3 : 1,
-          color: (selectedItemIndex == index)
-              ? greenColor
-              : blackColor.withOpacity(0.5),
-        ),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        children: [
-          Image.asset(taskType.image),
-          SizedBox(height: 8),
-          Text(
-            taskType.title,
-            style: TextStyle(
-              color: blackColor,
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}

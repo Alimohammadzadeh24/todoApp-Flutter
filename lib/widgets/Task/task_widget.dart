@@ -63,8 +63,15 @@ class _TaskWidgetState extends State<TaskWidget> {
                             Text(
                               widget.task.title,
                               style: TextStyle(fontSize: 16),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            Text(widget.task.subTitle),
+                            Text(
+                              widget.task.subTitle,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -144,7 +151,7 @@ class _TaskWidgetState extends State<TaskWidget> {
                 ),
               ),
               SizedBox(width: 20),
-              Image.asset('assets/images/workout.png'),
+              Image.asset(widget.task.taskType.image),
             ],
           ),
         ),

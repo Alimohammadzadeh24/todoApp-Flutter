@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:note_application/Theme/Color.dart';
 import 'package:note_application/models/Task.dart';
+import 'package:note_application/utilities/utility.dart';
+import 'package:note_application/widgets/Task/task_type_widget.dart';
 import 'package:time_pickerr/time_pickerr.dart';
 
 class EditTaskScreen extends StatefulWidget {
@@ -19,6 +21,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   var controllerTitle = TextEditingController();
   var controllerSubTitle = TextEditingController();
 
+  int _selectedItemIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -32,6 +36,12 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
     controllerTitle.text = widget.task.title;
     controllerSubTitle.text = widget.task.subTitle;
+
+    var selectedTaskTypeIndex = getListTaskType().indexWhere((element) {
+      return element.taskTypeEnum == widget.task.taskType.taskTypeEnum;
+    });
+
+    _selectedItemIndex = selectedTaskTypeIndex;
   }
 
   @override
@@ -112,7 +122,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 24),
                 Directionality(
                   textDirection: TextDirection.rtl,
                   child: CustomHourPicker(
@@ -133,6 +142,26 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       _time = time;
                     },
                   ),
+                ),
+                Container(
+                  height: 150,
+                  child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: getListTaskType().length,
+                      itemBuilder: (context, index) {
+                        return InkWell(
+                          onTap: () {
+                            setState(() {
+                              _selectedItemIndex = index;
+                            });
+                          },
+                          child: getTaskTypeListItem(
+                            index: index,
+                            selectedItemIndex: _selectedItemIndex,
+                            taskType: getListTaskType()[index],
+                          ),
+                        );
+                      }),
                 ),
                 Spacer(),
                 ElevatedButton(
@@ -172,6 +201,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     widget.task.title = taskTitle;
     widget.task.subTitle = taskSubTitle;
     widget.task.time = _time!;
+    widget.task.taskType = getListTaskType()[_selectedItemIndex];
     widget.task.save();
   }
 }
