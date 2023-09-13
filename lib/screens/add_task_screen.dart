@@ -3,7 +3,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:note_application/Theme/Color.dart';
 import 'package:note_application/models/Task.dart';
 import 'package:note_application/utilities/utility.dart';
-import 'package:note_application/widgets/Task/task_type.dart';
 import 'package:note_application/widgets/Task/task_type_widget.dart';
 import 'package:time_pickerr/time_pickerr.dart';
 
