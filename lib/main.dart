@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:note_application/Theme/Color.dart';
 import 'package:note_application/models/Task.dart';
+import 'package:note_application/screens/add_task_screen.dart';
 // import 'package:note_application/screens/add_task_screen.dart';
 import 'package:note_application/screens/home_screen.dart';
 
@@ -18,8 +20,11 @@ class NoteApplication extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Shabnam'),
-      home: HomeScreen(),
+      theme: ThemeData(
+        primaryColor: greenColor,
+        fontFamily: 'Shabnam',
+      ),
+      home: AddTaskScreen(),
     );
   }
 }

@@ -4,7 +4,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:note_application/Theme/Color.dart';
 import 'package:note_application/models/Task.dart';
 import 'package:note_application/screens/add_task_screen.dart';
-import 'package:note_application/widgets/task_widget.dart';
+import 'package:note_application/screens/edit_task_screen.dart';
+import 'package:note_application/widgets/Task/task_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   var taskBox = Hive.box<Task>('taskBox');
   bool isFabVisible = true;
+  final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,40 +27,60 @@ class _HomeScreenState extends State<HomeScreen> {
           child: ValueListenableBuilder(
             valueListenable: taskBox.listenable(),
             builder: (context, value, child) {
-              return ListView.builder(
-                itemBuilder: (context, index) {
-                  var task = taskBox.values.toList()[index];
-                  return getTaskWidget(task: task);
+              return NotificationListener<UserScrollNotification>(
+                onNotification: (notif) {
+                  if (notif.direction == ScrollDirection.forward) {
+                    setState(() {
+                      isFabVisible = true;
+                    });
+                  }
+                  if (notif.direction == ScrollDirection.reverse) {
+                    setState(() {
+                      isFabVisible = false;
+                    });
+                  }
+                  return true;
                 },
-                itemCount: taskBox.values.length,
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemBuilder: (context, index) {
+                    var task = taskBox.values.toList()[index];
+                    return Dismissible(
+                      key: UniqueKey(),
+                      direction: DismissDirection.horizontal,
+                      onDismissed: (DismissDirection direction) {
+                        if (direction == DismissDirection.endToStart) {
+                          task.delete();
+                        } else {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditTaskScreen(
+                                  task: task,
+                                ),
+                              ),
+                            );
+                        }
+                      },
+                      child: TaskWidget(task: task),
+                    );
+                  },
+                  itemCount: taskBox.values.length,
+                ),
               );
             },
           )),
-      floatingActionButton: NotificationListener<UserScrollNotification>(
-        onNotification: (notif) {
-          setState(() {
-            if (notif.direction == ScrollDirection.forward) {
-              isFabVisible = true;
-            }
-            if (notif.direction == ScrollDirection.reverse) {
-              isFabVisible = false;
-            }
-          });
-
-          return true;
-        },
-        child: Visibility(
-          visible: isFabVisible,
-          child: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddTaskScreen()),
-              );
-            },
-            backgroundColor: greenColor,
-            child: Image.asset('assets/images/icon_add.png'),
-          ),
+      floatingActionButton: Visibility(
+        visible: isFabVisible,
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddTaskScreen()),
+            );
+          },
+          backgroundColor: greenColor,
+          child: Image.asset('assets/images/icon_add.png'),
         ),
       ),
     );

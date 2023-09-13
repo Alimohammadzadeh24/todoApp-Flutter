@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:note_application/Theme/Color.dart';
 import 'package:note_application/models/Task.dart';
+import 'package:note_application/screens/edit_task_screen.dart';
 
-class getTaskWidget extends StatefulWidget {
-  getTaskWidget({super.key, required this.task});
-  Task task;
+class TaskWidget extends StatefulWidget {
+  TaskWidget({super.key, required this.task});
+  final Task task;
 
   @override
-  State<getTaskWidget> createState() => _getTaskWidgetState();
+  State<TaskWidget> createState() => _TaskWidgetState();
 }
 
-class _getTaskWidgetState extends State<getTaskWidget> {
+class _TaskWidgetState extends State<TaskWidget> {
   bool isBoxChecked = false;
 
   @override
@@ -74,14 +75,15 @@ class _getTaskWidgetState extends State<getTaskWidget> {
                           width: 83,
                           height: 28,
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(17),
-                              color: greenColor),
+                            borderRadius: BorderRadius.circular(17),
+                            color: greenColor,
+                          ),
                           child: Center(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 Text(
-                                  '10:00',
+                                  '${widget.task.time.hour}:${_getMinUnderTen(widget.task.time)}',
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.white,
@@ -99,27 +101,40 @@ class _getTaskWidgetState extends State<getTaskWidget> {
                           ),
                         ),
                         SizedBox(width: 16),
-                        Container(
-                          width: 83,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(17),
-                            color: lightGreenColor,
-                          ),
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text(
-                                  'ویرایش',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: greenColor,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditTaskScreen(
+                                  task: widget.task,
                                 ),
-                                Image.asset('assets/images/icon_edit.png'),
-                              ],
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 83,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(17),
+                              color: lightGreenColor,
+                            ),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Text(
+                                    'ویرایش',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: greenColor,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  Image.asset('assets/images/icon_edit.png'),
+                                ],
+                              ),
                             ),
                           ),
                         )
@@ -135,5 +150,13 @@ class _getTaskWidgetState extends State<getTaskWidget> {
         ),
       ),
     );
+  }
+
+  String _getMinUnderTen(DateTime time) {
+    if (time.minute < 10) {
+      return '0${time.minute}';
+    } else {
+      return time.minute.toString();
+    }
   }
 }

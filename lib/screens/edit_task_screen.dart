@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:note_application/Theme/Color.dart';
 import 'package:note_application/models/Task.dart';
-import 'package:note_application/utilities/utility.dart';
-import 'package:note_application/widgets/Task/task_type.dart';
 import 'package:time_pickerr/time_pickerr.dart';
 
-class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({super.key});
+class EditTaskScreen extends StatefulWidget {
+  EditTaskScreen({super.key, required this.task});
+  final Task task;
 
   @override
-  State<AddTaskScreen> createState() => _AddTaskScreenState();
+  State<EditTaskScreen> createState() => _EditTaskScreenState();
 }
 
-class _AddTaskScreenState extends State<AddTaskScreen> {
+class _EditTaskScreenState extends State<EditTaskScreen> {
   FocusNode titleFocusNode = FocusNode();
   FocusNode descFocusNode = FocusNode();
 
@@ -30,6 +29,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     descFocusNode.addListener(() {
       setState(() {});
     });
+
+    controllerTitle.text = widget.task.title;
+    controllerSubTitle.text = widget.task.subTitle;
   }
 
   @override
@@ -45,8 +47,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   DateTime? _time;
 
-  int _selectedItemIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -55,7 +55,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         backgroundColor: backgroundColor,
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            padding: EdgeInsets.symmetric(horizontal: 36, vertical: 48),
             child: Column(
               children: [
                 Directionality(
@@ -112,6 +112,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     ),
                   ),
                 ),
+                SizedBox(height: 24),
                 Directionality(
                   textDirection: TextDirection.rtl,
                   child: CustomHourPicker(
@@ -133,34 +134,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     },
                   ),
                 ),
-                Container(
-                  height: 150,
-                  child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: getListTaskType().length,
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                          onTap: () {
-                            setState(() {
-                              _selectedItemIndex = index;
-                            });
-                          },
-                          child: getTaskTypeListItem(
-                            index: index,
-                            selectedItemIndex: _selectedItemIndex,
-                            taskType: getListTaskType()[index],
-                          ),
-                        );
-                      }),
-                ),
-                SizedBox(height: 16),
                 Spacer(),
                 ElevatedButton(
                   onPressed: () {
                     String taskTitle = controllerTitle.text;
                     String taskSubTitle = controllerSubTitle.text;
                     if (taskTitle.isNotEmpty && taskSubTitle.isNotEmpty) {
-                      addTask(taskTitle, taskSubTitle);
+                      editTask(taskTitle, taskSubTitle);
                       Navigator.pop(context);
                     } else {
                       return;
@@ -172,7 +152,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      'اضافه کردن تسک',
+                      'ویرایش کردن تسک',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -188,55 +168,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 
-  addTask(String taskTitle, String taskSubTitle) {
-    var task = Task(
-      title: taskTitle,
-      subTitle: taskSubTitle,
-      time: _time!,
-    );
-    box.add(task);
-  }
-}
-
-class getTaskTypeListItem extends StatelessWidget {
-  getTaskTypeListItem({
-    super.key,
-    required this.taskType,
-    required this.index,
-    required this.selectedItemIndex,
-  });
-
-  TaskType taskType;
-
-  int index;
-  int selectedItemIndex;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10),
-      width: 110,
-      decoration: BoxDecoration(
-        border: Border.all(
-          width: (selectedItemIndex == index) ? 3 : 1,
-          color: (selectedItemIndex == index)
-              ? greenColor
-              : blackColor.withOpacity(0.5),
-        ),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        children: [
-          Image.asset(taskType.image),
-          SizedBox(height: 8),
-          Text(
-            taskType.title,
-            style: TextStyle(
-              color: blackColor,
-            ),
-          )
-        ],
-      ),
-    );
+  editTask(String taskTitle, String taskSubTitle) {
+    widget.task.title = taskTitle;
+    widget.task.subTitle = taskSubTitle;
+    widget.task.time = _time!;
+    widget.task.save();
   }
 }
